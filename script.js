@@ -1,11 +1,11 @@
 const tituloEl=document.getElementById('titulo');
 const titulo='Tetris'
-const Cols=20;
-const Rows=30;
-const scaleGame=32;
 tituloEl.innerHTML=`
     Juego de ${titulo}
 `;
+const Rows=20;
+const Cols=10;
+const scaleGame=32;
 const shapes=[
     [
         [0,0,0],
@@ -20,16 +20,16 @@ const color=[
 class PieceRender{
     constructor(shape,ctx){
         this.shape=shape;
-        this.ctx=ctx
-        this.x=5;
-        this.y=7;
+        this.ctx=ctx;
+        this.x=3;
+        this.y=5;
     }
-    rendering(){
+    pieceRender(){
         this.shape.forEach((row,i)=>{
             row.forEach((cell,j)=>{
                 if(cell!==0){
-                    ctx.fillStyle='red';
-                    ctx.fillRect(this.x+j,this.y+i,1,1)
+                    this.ctx.fillStyle='red';
+                    this.ctx.fillRect(this.x+j,this.y+i,1,1)
                 }
             })
         })
@@ -39,31 +39,52 @@ class GameModel{
     constructor(ctx){
         this.ctx=ctx;
         this.fallingPiece=null;
-        this.grid=this.MakeStartingGrid();
+        this.grid=this.makeStartingGrid()
     }
-    MakeStartingGrid(){
-        let grid=[]
+    makeStartingGrid(){
+        let grid=[];
         for(let i=0;i<Rows;i++){
-            grid.push([]);
+            grid.push([])
             for(let j=0;j<Cols;j++){
                 grid[grid.length-1].push(0)
             }
         }
-        return grid;
+        return grid
+    }
+    collision(x,y){
+        return true
+    }
+    renderGameState(){
+        if(this.fallingPiece!==null){
+            this.fallingPiece.pieceRender()
+        }
+    }
+    moveDown(){
+        if(this.fallingPiece===null){
+            this.renderGameState()
+        }else if(this.collision(this.fallingPiece.x,this.fallingPiece.y+1)){
+            const shape=this.fallingPiece.shape
+            console.log(shape)
+        }
+        this.fallingPiece.y+=1;
     }
 }
-const canvas=document.getElementById('tetris');
-const ctx=canvas.getContext('2d');
-ctx.scale(scaleGame,scaleGame)
-const model=new GameModel(ctx)
+const tetris=document.getElementById('tetris');
+const ctx=tetris.getContext('2d')
+ctx.scale(scaleGame,scaleGame);
+const model=new GameModel(ctx);
 function newGameState(){
     if(model.fallingPiece===null){
         const piece=new PieceRender(shapes[0],ctx)
         model.fallingPiece=piece
-        model.fallingPiece.rendering();
     }
+    model.fallingPiece.pieceRender()
+    model.moveDown();
 }
-newGameState()
+setInterval(()=>{
+    ctx.clearRect(0,0,tetris.clientWidth, tetris.height)
+    newGameState()
+},1000)
 document.addEventListener('keydown',function(e){
     switch(e.key){
         case 'a':
