@@ -51,22 +51,34 @@ class GameModel{
         }
         return grid
     }
-    collision(x,y){
-        return true
-    }
-    renderGameState(){
-        if(this.fallingPiece!==null){
-            this.fallingPiece.pieceRender()
+    collision(x,y,candidate=null){
+        const shape=candidate||this.fallingPiece.shape
+        for(let i=0; i<shape.length;i++){
+            for(let j=0;j<shape[i].length;j++){
+                if(shape[i][j]!==0){
+                    let p=x+j;
+                    let q=y+i;
+                    if(p>=0&&p<Cols&&q<Rows){
+                        if(this.grid[q][p]!==0){
+                            return true
+                        }
+                    }else{
+                        return true
+                    }
+                }
+            }
         }
+        return false
     }
     moveDown(){
         if(this.fallingPiece===null){
-            this.renderGameState()
-        }else if(this.collision(this.fallingPiece.x,this.fallingPiece.y+1)){
-            const shape=this.fallingPiece.shape
-            console.log(shape)
+            return 
         }
-        this.fallingPiece.y+=1;
+        if(this.collision(this.fallingPiece.x,this.fallingPiece.y+1)){
+            console.log('pude entrar a collisiones')
+        }else{
+            this.fallingPiece.y+=1
+        }
     }
 }
 const tetris=document.getElementById('tetris');
@@ -77,14 +89,15 @@ function newGameState(){
     if(model.fallingPiece===null){
         const piece=new PieceRender(shapes[0],ctx)
         model.fallingPiece=piece
+        model.moveDown();
     }
-    model.fallingPiece.pieceRender()
+    model.fallingPiece.pieceRender();
     model.moveDown();
 }
 setInterval(()=>{
-    ctx.clearRect(0,0,tetris.clientWidth, tetris.height)
-    newGameState()
-},1000)
+    ctx.clearRect(0,0,tetris.clientWidth,tetris.height)
+    newGameState();
+},500)
 document.addEventListener('keydown',function(e){
     switch(e.key){
         case 'a':
