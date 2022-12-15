@@ -30,6 +30,9 @@ class PieceRender{
                 if(cell!==0){
                     this.ctx.fillStyle='red';
                     this.ctx.fillRect(this.x+j,this.y+i,1,1)
+                    this.ctx.lineWidth=.01;
+                    this.ctx.strokeStyle='white';
+                    this.ctx.strokeRect(this.x+j,this.y+i,1,1);
                 }
             })
         })
@@ -70,6 +73,22 @@ class GameModel{
         }
         return false
     }
+    renderStateGame(){
+        for(let i=0;i<this.grid.length;i++){
+            for(let j=0;j<this.grid[i].length;j++){
+                if(this.grid[i][j]===0){
+                    this.ctx.fillStyle='black';
+                    this.ctx.fillRect(j,i,1,1);
+                    this.ctx.lineWidth=.03;
+                    this.ctx.strokeStyle='rgb(61, 61, 61)';
+                    this.ctx.strokeRect(j,i,1,1);
+                }
+            }
+        }
+        if(this.fallingPiece!==null){
+            this.fallingPiece.pieceRender()
+        }
+    }
     moveDown(){
         if(this.fallingPiece===null){
             return 
@@ -78,6 +97,18 @@ class GameModel{
             console.log('pude entrar a collisiones')
         }else{
             this.fallingPiece.y+=1
+        }
+        this.renderStateGame()
+    }
+    move(right){
+        if(right){
+            if(!this.collision(this.fallingPiece.x+1,this.fallingPiece.y)){
+                this.fallingPiece.x+=1
+            }
+        }else{
+            if(!this.collision(this.fallingPiece.x-1,this.fallingPiece.y)){
+                this.fallingPiece.x-=1
+            }
         }
     }
 }
@@ -101,10 +132,10 @@ setInterval(()=>{
 document.addEventListener('keydown',function(e){
     switch(e.key){
         case 'a':
-            console.log('izquierda')
+            model.move(false);
             break;
         case 'd':
-            console.log('derecha');
+            model.move(true);
             break;
         case 's':
             console.log('acelerar caída')
