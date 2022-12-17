@@ -6,5 +6,5 @@ body{
 .tetris{
     border-radius: 5px;
     transform: scale(.8);
-    color: rgb(61, 61, 61);
+    /* color: rgb(255, 48, 48); */
 }

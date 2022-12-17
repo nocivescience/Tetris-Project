@@ -11,24 +11,61 @@ const shapes=[
         [0,0,0],
         [1,1,0],
         [0,1,1]
+    ],
+    [
+        [0,0,0],
+        [0,1,1],
+        [1,1,0]
+    ],
+    [
+        [0,1,1],
+        [1,1,0],
+        [0,1,1]
+    ],
+    [
+        [0,0,1],
+        [0,1,0],
+        [1,0,0]
+    ],
+    [
+        [1,1,1],
+        [1,1,1],
+        [1,1,1]
+    ],
+    [
+        [0,0,0],
+        [0,1,0],
+        [1,1,1]
+    ],
+    [
+        [0,0,0],
+        [1,0,0],
+        [1,1,1]
+    ],
+    [
+        [0,0,0],
+        [0,0,1],
+        [1,1,1]
     ]
 ]
 const color=[
-    'black',
-    'red',
+    'aqua',
+    'rgb(255, 48, 48)',
+    'rgb(255, 192, 19)',
+
 ]
 class PieceRender{
-    constructor(shape,ctx){
+    constructor(shape,color,ctx){
         this.shape=shape;
         this.ctx=ctx;
-        this.x=3;
-        this.y=-2;
+        this.x=5;
+        this.y=-1;
     }
     pieceRender(){
         this.shape.forEach((row,i)=>{
             row.forEach((cell,j)=>{
                 if(cell!==0){
-                    this.ctx.fillStyle='red';
+                    this.ctx.fillStyle=color;
                     this.ctx.fillRect(this.x+j,this.y+i,1,1)
                     this.ctx.lineWidth=.01;
                     this.ctx.strokeStyle='white';
@@ -94,6 +131,7 @@ class GameModel{
             return 
         }
         if(this.collision(this.fallingPiece.x,this.fallingPiece.y+1)){
+            console.log('la pieza sale del límite')
             const shape=this.fallingPiece.shape;
             const x=this.fallingPiece.x;
             const y=this.fallingPiece.y;
@@ -101,7 +139,7 @@ class GameModel{
                 row.map((cell,j)=>{
                     let p=x+j;
                     let q=y+i;
-                    if(p>0&&p<Cols&&q<Rows&&cell!==0){
+                    if(p>=0&&p<Cols&&q<Rows&&cell!==0){ //tuve sendo problema aca
                         this.grid[q][p]=shape[i][j]
                     }
                 })
@@ -111,9 +149,21 @@ class GameModel{
             this.fallingPiece.y+=1
         }
         this.renderStateGame()
-        
+        for(let i=0;i<this.grid.length;i++){
+            for(let j=0;j<this.grid[i].length;j++){
+                if(this.grid[i][j]!==0){
+                    this.ctx.fillStyle='yellow',
+                    this.ctx.fillRect(j,i,1,1)
+                    this.ctx.strokeStyle='green';
+                    this.ctx.strokeRect(j,i,1,1);
+                }
+            }
+        }
     }
     move(right){
+        if(this.fallingPiece===null){
+            return 
+        }
         if(right){
             if(!this.collision(this.fallingPiece.x+1,this.fallingPiece.y)){
                 this.fallingPiece.x+=1
@@ -123,6 +173,7 @@ class GameModel{
                 this.fallingPiece.x-=1
             }
         }
+        this.renderStateGame()
     }
 }
 const tetris=document.getElementById('tetris');
@@ -130,8 +181,10 @@ const ctx=tetris.getContext('2d')
 ctx.scale(scaleGame,scaleGame);
 const model=new GameModel(ctx);
 function newGameState(){
+    const randShape=shapes[Math.floor(Math.random()*shapes.length)]
+    const randColor=color[Math.floor(Math.random()*color.length)];
     if(model.fallingPiece===null){
-        const piece=new PieceRender(shapes[0],ctx)
+        const piece=new PieceRender(randShape,randColor,ctx)
         model.fallingPiece=piece
         model.moveDown();
     }
