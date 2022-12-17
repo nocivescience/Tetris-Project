@@ -22,7 +22,7 @@ class PieceRender{
         this.shape=shape;
         this.ctx=ctx;
         this.x=3;
-        this.y=5;
+        this.y=-2;
     }
     pieceRender(){
         this.shape.forEach((row,i)=>{
@@ -94,11 +94,24 @@ class GameModel{
             return 
         }
         if(this.collision(this.fallingPiece.x,this.fallingPiece.y+1)){
-            console.log('pude entrar a collisiones')
+            const shape=this.fallingPiece.shape;
+            const x=this.fallingPiece.x;
+            const y=this.fallingPiece.y;
+            shape.map((row,i)=>{
+                row.map((cell,j)=>{
+                    let p=x+j;
+                    let q=y+i;
+                    if(p>0&&p<Cols&&q<Rows&&cell!==0){
+                        this.grid[q][p]=shape[i][j]
+                    }
+                })
+            })
+            this.fallingPiece=null;
         }else{
             this.fallingPiece.y+=1
         }
         this.renderStateGame()
+        
     }
     move(right){
         if(right){
@@ -128,7 +141,7 @@ function newGameState(){
 setInterval(()=>{
     ctx.clearRect(0,0,tetris.clientWidth,tetris.height)
     newGameState();
-},500)
+},250)
 document.addEventListener('keydown',function(e){
     switch(e.key){
         case 'a':
